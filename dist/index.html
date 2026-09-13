@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#24283e">
+<meta name="description" content="Explore transit futures for Toronto. Generate a proposal, adjust the tradeoffs, and discover the thinking behind each connection.">
+<title>Nextstop — Toronto transit futures</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%236553df'/%3E%3Cpath d='M8 25V8h7l9 17V8' stroke='white' fill='none' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="vendor/maplibre.css"><link rel="stylesheet" href="styles.css?v=nextstop-3"><link rel="stylesheet" href="workspace.css?v=nextstop-3">
+<script src="vendor/maplibre.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#proposal-settings">Skip to proposal controls</a>
+<header class="topbar"><a class="brand" href="./" aria-label="Nextstop home"><span class="brand-mark" aria-hidden="true">n</span>nextstop<span class="brand-divider"></span><span class="brand-sub">TORONTO LAB</span></a><div class="header-right"><span class="pilot-tag">A city of possibilities</span><button id="method-button" class="text-button">How it works <span aria-hidden="true">↗</span></button></div></header>
+<main class="workspace">
+<aside class="sidebar" aria-label="Generate and adjust proposals">
+<div class="side-intro"><div class="eyebrow">REIMAGINE THE EVERYDAY</div><h1>Where could <br>Toronto go next?</h1><p>A new connection. A different journey. <br>Make room for a little imagination.</p></div>
+<div class="side-content">
+<div class="city-select"><span class="city-icon" aria-hidden="true">T</span><span><strong>Toronto metropolitan pilot</strong><small>TTC corridors · September 2026</small></span></div>
+<form id="proposal-settings">
+<div class="section-label">SHAPE YOUR FUTURE</div>
+<label class="control-label" for="budget">Construction budget <strong id="budget-output">C$8 billion</strong></label>
+<input id="budget" name="budget" type="range" min="0" max="25" value="8" step=".5" aria-describedby="budget-hint">
+<div class="range-labels" id="budget-hint"><span>Keep it modest</span><span>Think bigger</span></div>
+<label class="control-label" for="priority">What matters most?</label>
+<select id="priority" name="priority"><option value="balanced">A balanced network</option><option value="access">Reach more neighbourhoods</option><option value="speed">Faster cross-city journeys</option><option value="value">Make the budget go further</option></select>
+<details class="advanced"><summary>Fine-tune the assumptions <span aria-hidden="true">+</span></summary><div class="advanced-content">
+<label class="control-label" for="operations">Annual operating budget <strong id="operations-output">C$180m</strong></label><input id="operations" type="range" min="0" max="500" step="10" value="180"><p class="field-help">A separate allowance for running the new services.</p>
+<label class="control-label" for="preference">Transit preference</label><select id="preference"><option value="auto">Let the model compare modes</option><option value="surface">Keep new lines above ground</option><option value="brt">Explore bus rapid transit</option><option value="lrt">Explore light rail</option><option value="metro">Explore underground metro</option></select>
+<label class="control-label" for="frequency">A departure every <strong id="frequency-output">6 minutes</strong></label><input id="frequency" type="range" min="3" max="15" step="1" value="6">
+<label class="control-label" for="spacing">Stop spacing</label><select id="spacing"><option value="local">More local stops</option><option value="balanced" selected>Balanced spacing</option><option value="express">Fewer stops, longer walks</option></select>
+<label class="control-label" for="risk">Budget approach</label><select id="risk"><option value="cautious">Fit the upper cost estimate</option><option value="ambitious">Explore the lower estimate</option></select>
+</div></details>
+<button class="generate-button" id="generate" type="submit"><span aria-hidden="true">✦</span> Generate a proposal <span aria-hidden="true">→</span></button>
+<p id="pending-message" class="pending-message" hidden>Settings changed. Generate to update the map.</p>
+</form>
+<div class="section-label">YOUR CONNECTIONS <span class="small-badge" id="proposal-count">—</span></div>
+<div id="proposal-list" aria-live="polite"><p class="loading-text">Loading Toronto’s network…</p></div>
+<div id="budget-status" class="budget-status"></div>
+<button id="compare-button" class="secondary-button" disabled>Compare the alternatives <span aria-hidden="true">↗</span></button>
+<p class="side-note">Research-informed scenarios. Costs and travel times are illustrative assumptions.</p>
+</div>
+<div class="sidebar-footer">Independent project · Built for exploration</div>
+</aside>
+<section class="map-workspace" aria-label="Toronto transit proposal map">
+<div id="map" role="region" aria-label="Interactive map of Toronto transit lines"></div>
+<div id="map-unavailable" class="map-unavailable" hidden><strong>The background map could not load.</strong><p>You can still generate and compare proposals using the controls. Check your connection and reload to restore the map.</p></div>
+<div class="map-toolbar" aria-label="Map layers"><button class="map-chip active" id="toggle-rail" aria-pressed="true"><i class="legend-line"></i> TTC rail</button><button class="map-chip" id="toggle-buses" aria-pressed="false"><i class="legend-line bus"></i> Buses</button><button class="map-chip active" id="toggle-proposals" aria-pressed="true"><i class="legend-line violet dashed"></i> Proposal</button></div>
+<div class="map-heading"><span class="eyebrow">YOUR TORONTO, REIMAGINED</span><h2 id="scenario-title">A little more connected.</h2><p id="scenario-subtitle">One city. More than one way forward.</p></div>
+<div class="map-actions"><button id="fit-map" class="map-action" aria-label="Show all proposed routes" title="Show all routes">⌖</button></div>
+<div class="map-bottom">
+<div class="map-meta"><span class="concept-note">EXPLORATORY CONCEPT <span>Not an official transit plan</span></span><button id="export-button" class="download-button" disabled>Download proposal <span aria-hidden="true">↓</span></button></div>
+<div class="overview-strip" id="overview-strip"><div><span class="metric-label">Construction estimate</span><strong id="total-cost">—</strong><small>Illustrative range · CAD</small></div><div><span class="metric-label">Improved corridors</span><strong id="total-km">—</strong><small id="total-stops">Select your priorities to begin</small></div><div><span class="metric-label">Annual operations</span><strong id="total-annual">—</strong><small>Illustrative annual estimate</small></div></div>
+<div class="insight-card" id="insight-card"><div class="insight-symbol" aria-hidden="true">✦</div><div class="insight-text"><div class="eyebrow">THE THINKING BEHIND THE LINE</div><h3 id="insight-title">Start with the connections.</h3><p id="insight-summary">Explore how different corridors could make Toronto easier to cross.</p></div><button id="detail-button" class="circle-button" aria-label="Adjust the selected connection" title="Adjust this connection" disabled>↗</button></div>
+<div class="bottom-legend"><span><i class="legend-line"></i> Existing TTC rail</span><span><i class="legend-line violet dashed"></i> Proposed corridor</span><span><i class="legend-stop"></i> Concept stop</span></div>
+</div></section></main>
+<nav class="mobile-switch" aria-label="Workspace sections"><a href="#proposal-settings">Adjust proposal</a><a href="#map">View map</a></nav>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<dialog id="detail-dialog" class="detail-dialog" aria-labelledby="detail-title"><div id="detail-content"></div></dialog>
+<dialog id="compare-dialog" class="wide-dialog" aria-labelledby="compare-title"><div class="dialog-top"><span class="eyebrow">A DIFFERENT WAY TO GET THERE</span><button class="close-dialog" aria-label="Close alternatives">×</button></div><h2 id="compare-title">Same corridor. Different choices.</h2><p>Compare transit modes for your selected connection. These are illustrative scenarios under the same service assumptions.</p><div id="comparison-content"></div></dialog>
+<dialog id="method-dialog" class="wide-dialog" aria-labelledby="method-title">
+<div class="dialog-top"><span class="eyebrow">A LITTLE CONTEXT GOES A LONG WAY</span><button class="close-dialog" aria-label="Close how it works">×</button></div><h2 id="method-title">Imagination, with the workings shown.</h2>
+<p>Nextstop is an experimental transit sandbox. It uses an explainable scenario model to choose up to three upgrades from six Toronto bus corridors. Change the assumptions and explore a different result.</p>
+<div class="method-grid"><article><span class="step-number">01</span><h3>Start with real streets.</h3><p>The baseline uses actual TTC route and stop geometry, including Lines 5 and 6, from the August 27, 2026 data snapshot. Proposals follow portions of those bus corridors.</p></article><article><span class="step-number">02</span><h3>Compare possibilities.</h3><p>The model compares bus priority, BRT, light rail and underground metro against construction and operating budgets. It can recommend no new construction.</p></article><article><span class="step-number">03</span><h3>Understand the tradeoff.</h3><p>More stops mean shorter walks but slower journeys. Higher frequency requires more vehicles. Metro can be faster, with a much larger construction bill.</p></article></div>
+<div class="method-callout"><strong>What this first version can tell you</strong><p>Routes and existing stop locations are sourced. Costs, speeds and ranking weights are explicit design assumptions, not calibrated predictions. The model is rule-based; no live language model is connected. Population density, origin–destination demand, terrain, geology, protected-area boundaries and full journey routing are not yet integrated. No ridership, traffic reduction or financial feasibility is claimed.</p></div>
+<h3>The details that matter</h3><ul class="method-list"><li><strong>Metropolitan context:</strong> this release evaluates TTC corridors. GO service, regional buses and committed future projects need a combined future baseline before regional benefits can be estimated.</li><li><strong>GDP and funding:</strong> regional GDP is economic context, not money available to spend. The sliders are hypothetical investment allowances.</li><li><strong>Environment:</strong> following an existing road does not establish permission to build. Each concept lists issues requiring review. Greenbelt restrictions are location-specific.</li><li><strong>Costs:</strong> modelled guideway, stops, vehicles and depot allowances, with a corridor complexity factor. Acquisition, major utility conflicts, financing, inflation and actual bids remain unresolved.</li><li><strong>Travel times:</strong> length ÷ assumed speed, plus intermediate stop dwell and half the service interval. Excludes walking, transfers, crowding and reliability. The existing-bus comparison assumes 18 km/h and a 10-minute interval.</li><li><strong>Ranking:</strong> combines source bus-stop count, listed connection opportunities, modelled time savings and stop coverage, with cost penalties. These proxies do not measure population or actual demand.</li></ul>
+<details class="assumptions-table"><summary>See the cost and speed assumptions</summary><div class="table-scroll"><table><thead><tr><th>Mode</th><th>Guideway / km</th><th>Each stop</th><th>Moving speed</th></tr></thead><tbody><tr><td>Bus priority</td><td>C$2–7m</td><td>C$0.08–0.3m</td><td>23 km/h</td></tr><tr><td>BRT</td><td>C$9–24m</td><td>C$0.4–1.2m</td><td>32 km/h</td></tr><tr><td>LRT</td><td>C$80–180m</td><td>C$4–12m</td><td>40 km/h</td></tr><tr><td>Metro</td><td>C$280–550m</td><td>C$80–160m</td><td>60 km/h</td></tr></tbody></table></div><p>Illustrative 2026 Canadian-dollar assumptions, not agency estimates or validated local benchmarks. Depot/fleet allowances and a complexity factor are added. Operating estimates assume 18 hours per day, 365 days per year.</p></details>
+<h3>Ideas travel. Evidence comes with them.</h3><div id="source-links" class="source-links"></div>
+<p class="attribution-copy">Contains information licensed under the <a href="https://open.toronto.ca/open-data-licence/" target="_blank" rel="noreferrer">Open Government Licence – Toronto</a>. Independent project, not affiliated with or endorsed by TTC, Metrolinx or the City of Toronto. Map data © OpenStreetMap contributors; basemap © CARTO.</p>
+</dialog>
+<noscript><p class="noscript">Please enable JavaScript to generate and adjust Toronto transit proposals.</p></noscript>
+<script type="module" src="app.js?v=nextstop-3"></script>
+</body></html>
