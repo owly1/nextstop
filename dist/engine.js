@@ -9,6 +9,8 @@ export const MODES = {
 export const PRIORITIES = {balanced:'A balanced network',access:'Reach more neighbourhoods',speed:'Faster cross-city journeys',value:'Make the budget go further'};
 export const DEFAULTS={budget:8,operations:180,priority:'balanced',frequency:6,spacing:'balanced',preference:'auto',risk:'cautious'};
 export const SOURCES = {
+  population:{title:'Toronto 2021 neighbourhood census profiles',url:'https://open.toronto.ca/dataset/neighbourhood-profiles/'},
+  neighbourhoods:{title:'Toronto neighbourhood boundaries',url:'https://open.toronto.ca/dataset/neighbourhoods/'},
   ttc:{title:'TTC routes and schedules',url:'https://open.toronto.ca/dataset/ttc-routes-and-schedules/'},
   tts:{title:'Transportation Tomorrow Survey',url:'https://dmg.utoronto.ca/transportation-tomorrow-survey/tts-reports/'},
   tokyo:{title:'Tokyo: integrating rail networks',url:'https://documents1.worldbank.org/curated/en/183801560943706394/pdf/Case-Study-on-Tokyo-Metropolitan-Region-Japan.pdf'},
@@ -76,7 +78,7 @@ export function evaluate(corridor,mode,settings){
 }
 function score(c,p,settings){
   // Explicit design weights, not measured travel demand. Do not present as a forecast.
-  const coverage=Math.min(c.stops.length/35,1.5),connections=c.connections.length/2;
+  const coverage=c.demographics?Math.min(c.demographics.densityPerKm2/6000,1.5):Math.min(c.stops.length/35,1.5),connections=c.connections.length/2;
   const saving=p.timeSaving/p.baseMinutes;
   const reach=Math.min(p.stops.length/(c.km*1.4),1.3);
   const weights={balanced:[.8,.7,2,.5],access:[1.7,.7,.8,1.4],speed:[.4,.6,5,.1],value:[.7,.6,1,.4]}[settings.priority];

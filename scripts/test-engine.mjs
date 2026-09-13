@@ -3,6 +3,13 @@ import fs from 'node:fs';
 import {buildCandidates,generate,evaluate,totals,validSettings,DEFAULTS,MODES,distance} from '../dist/engine.js';
 const read=name=>JSON.parse(fs.readFileSync(new URL('../dist/data/'+name,import.meta.url)));
 const candidates=buildCandidates(read('ttc-network.json'),read('ttc-stops.json'));
+const census=read('corridor-demographics.json'),neighbourhoods=read('neighbourhood-density.json').features;
+assert.equal(neighbourhoods.length,158);
+assert.equal(new Set(neighbourhoods.map(n=>n.properties.id)).size,158);
+assert.equal(neighbourhoods.reduce((sum,n)=>sum+n.properties.population,0),2761290,'Preserve source sample-estimate total');
+assert(census.steeles.coverageFraction>.45&&census.steeles.coverageFraction<.6,'Do not fill missing York Region population with zero');
+assert(census.dufferin.densityPerKm2>census.lawrence.densityPerKm2);
+candidates.forEach(c=>{assert(census[c.id]?.neighbourhoods.length>0);c.demographics=census[c.id];});
 assert.equal(candidates.length,6);
 for(const c of candidates){
   assert(c.km>5&&c.km<20,`${c.id}: corridor length should be plausible`);
