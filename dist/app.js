@@ -1,4 +1,4 @@
-import {MODES,PRIORITIES,DEFAULTS,SOURCES,buildCandidates,generate,evaluate,totals,validSettings,cleanStopName} from './engine.js';
+import {MODES,PRIORITIES,DEFAULTS,SOURCES,buildCandidates,generate,evaluate,totals,validSettings,cleanStopName} from './engine.js?v=nextstop-4';
 const $=id=>document.getElementById(id);
 const state={settings:{...DEFAULTS},draft:{...DEFAULTS},candidates:[],proposals:[],selected:null,network:null,stops:null,ready:false,layers:{rail:true,buses:false,proposals:true}};
 let map,mapReady=false,popup,toastTimer;
