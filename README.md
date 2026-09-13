@@ -13,6 +13,7 @@ From the `site/dist` folder, run `python3 -m http.server 4173 --bind 127.0.0.1`,
 - Actual TTC routes and stops from the August 27, 2026 GTFS snapshot, with rail, streetcar and optional daytime bus layers.
 - A density layer for 158 Toronto neighbourhoods and area-weighted density context around each corridor, using sourced 2021 census weighted 25% sample estimates. The coverage factor identifies missing areas outside Toronto.
 - A regional travel-pattern explorer using published 2022 TTS origin–destination tables. Explore inbound/outbound trips for six GTHA regions, morning or full day. All modes and purposes are included; these coarse flows do not change corridor ranking or imply transit ridership.
+- A Nature map layer and corridor environmental screening using Toronto ravine (2019 download) and ESA (2026 download) polygons. Invalid ravine shapes are displayed provisionally and excluded from measured overlaps; affected corridors are marked incomplete. Includes mode-specific review questions and a sourced Singapore case study.
 - A reproducible rule-based comparison of bus priority, BRT, LRT and metro along six existing corridors.
 - Separate construction and annual operating allowances; no construction when no package fits.
 - Individual adjustments, mode comparison, explanatory case studies and sourced limitations.
@@ -20,9 +21,9 @@ From the `site/dist` folder, run `python3 -m http.server 4173 --bind 127.0.0.1`,
 
 ## What is still research, not a working model
 
-This version is not a trained AI, a demand forecast or an engineering assessment. Neighbourhood density is historical context; it does not establish current population, walking access or ridership. The app does not yet calculate origin–destination flows, elevation, geology, protected-area intersections, regional GDP or actual public funding. Costs, speeds, vehicle capacities and ranking weights are illustrative design assumptions. The baseline excludes GO and regional bus networks and does not represent committed future projects. Geometry follows representative TTC bus paths, including road turns unsuitable for a literal railway alignment.
+This version is not a trained AI, a demand forecast or an engineering assessment. Neighbourhood density is historical context; it does not establish current population, walking access or ridership. The app does not yet assign corridor-level origin–destination demand or calculate elevation, geology, regional GDP or actual public funding. Environmental screening covers only two Toronto datasets, not all constraints. Costs, speeds, vehicle capacities and ranking weights are illustrative design assumptions. The baseline excludes GO and regional bus networks and does not represent committed future projects. Geometry follows representative TTC bus paths, including road turns unsuitable for a literal railway alignment.
 
-The next substantive phase should ingest travel-flow evidence, build a combined regional baseline, and evaluate walk catchments and environmental constraints. Keep these separate from speculative scenario assumptions. GDP must never be treated as available government funds. An LLM can explain retrieved evidence later; it should not invent the numerical analysis.
+The next substantive phase should add sourced terrain evidence, extend environmental coverage (Greenbelt, national parks and flood hazards), build a combined regional baseline, and evaluate finer trip patterns and walk catchments. Keep these separate from speculative scenario assumptions. GDP must never be treated as available government funds. An LLM can explain retrieved evidence later; it should not invent the numerical analysis.
 
 ## Files to change
 
@@ -45,3 +46,11 @@ This is a static website with no package installation or build step. `.openai/ho
 MapLibre GL JS 5.6.1 is vendored with its licence. CARTO basemap tiles, OpenStreetMap data and Google Fonts require internet access. The dataset and scenario model run locally in the visitor's browser. No API key, account, analytics or paid AI service is connected. Refreshing the page resets the scenario; download the proposal to keep a copy.
 
 Contains information licensed under the Open Government Licence – Toronto. Independent project; no TTC, Metrolinx or City endorsement is implied.
+
+## Environmental data maintenance
+
+`dist/environment.js` renders the Nature map layer and corridor evidence. `scripts/prepare-environment.py --ravines INPUT.zip --esa INPUT.geojson --boundaries TORONTO_NEIGHBOURHOODS.geojson --corridors CANDIDATES.json --output dist/data` reproduces the screen. Install the pinned packages in `scripts/requirements-environment.txt` for preprocessing. Run `python3 scripts/test-environment.py` to check overlap unions, boundary contact, proximity, provisional geometry exclusion and published coverage.
+
+Source URLs, SHA256 hashes, snapshot dates and repairs are in `dist/data/environment-provenance.json`. Analysis uses EPSG:2952 and unsimplified valid polygons. The ravine shapefile contains 65 polygons with nested shells; they are excluded from overlap length, with repaired shapes used only for provisional display and proximity context. Within 50 m of their bounding boxes, screening is marked incomplete. Other nearby areas are found using a 50 m minimum distance, an illustrative search radius, not a setback or construction width. Display polygons are simplified by 5 m. Toronto coverage uses a 50 m band intersected with the neighbourhood union; Steeles has incomplete regional coverage.
+
+No source overlap establishes environmental clearance; 2D geometry does not distinguish bridges, tunnels or surface impacts. Screening adds review questions and does not change rankings or cost assumptions. Density and Nature are mutually exclusive thematic layers to keep their legends and colours unambiguous. The proposal export and WebMCP snapshot include the environmental evidence and missing-data state.
