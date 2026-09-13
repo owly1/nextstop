@@ -1,4 +1,5 @@
-import {MODES,PRIORITIES,DEFAULTS,SOURCES,buildCandidates,generate,evaluate,totals,validSettings,cleanStopName} from './engine.js?v=nextstop-7';
+import {MODES,PRIORITIES,DEFAULTS,SOURCES,buildCandidates,generate,evaluate,totals,validSettings,cleanStopName} from './engine.js?v=nextstop-8';
+import {initializeTravel} from './travel.js?v=nextstop-8';
 const $=id=>document.getElementById(id);
 const state={settings:{...DEFAULTS},draft:{...DEFAULTS},candidates:[],proposals:[],selected:null,network:null,stops:null,density:null,ready:false,layers:{rail:true,buses:false,proposals:true,density:false}};
 let map,mapReady=false,popup,toastTimer;
@@ -105,6 +106,7 @@ for(const tool of [
 ])try{Promise.resolve(context.registerTool(tool,{signal:lifecycle.signal})).catch(()=>{});}catch{}
 }
 async function init(){
+initializeTravel();
 setupEvents();syncControls();$('source-links').innerHTML=['ttc','population','neighbourhoods','tts','tokyo','seoul','beijing','singapore','greenbelt','cost'].map(sourceLink).join('');
 try{const responses=await Promise.all(['data/ttc-network.json','data/ttc-stops.json'].map(url=>fetch(url).then(r=>{if(!r.ok)throw new Error('Transit dataset did not load');return r.json();})));[state.network,state.stops]=responses;state.candidates=buildCandidates(...responses);
 try{const [density,evidence]=await Promise.all(['data/neighbourhood-density.json','data/corridor-demographics.json'].map(url=>fetch(url).then(r=>{if(!r.ok)throw new Error('Population dataset did not load');return r.json();})));if(density.features?.length!==158||state.candidates.some(c=>!Number.isFinite(evidence[c.id]?.densityPerKm2)))throw new Error('Population evidence is incomplete');state.density=density;state.candidates.forEach(c=>c.demographics=evidence[c.id]);$('toggle-density').disabled=false;}catch(error){$('population-status').hidden=false;console.warn('Population evidence unavailable',error.message);}

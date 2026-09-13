@@ -1,0 +1,178 @@
+{
+  "regions": [
+    "Toronto",
+    "Durham",
+    "York",
+    "Peel",
+    "Halton",
+    "Hamilton"
+  ],
+  "surveyYear": 2022,
+  "matrices": {
+    "day": {
+      "values": [
+        [
+          4786100,
+          103900,
+          365200,
+          258800,
+          44700,
+          17500
+        ],
+        [
+          105100,
+          1149700,
+          45000,
+          10400,
+          2000,
+          900
+        ],
+        [
+          362700,
+          44400,
+          1733100,
+          77700,
+          10500,
+          2900
+        ],
+        [
+          261600,
+          10500,
+          78900,
+          2022700,
+          119000,
+          19300
+        ],
+        [
+          45400,
+          2000,
+          10400,
+          117800,
+          982000,
+          73300
+        ],
+        [
+          17100,
+          1000,
+          2900,
+          18800,
+          73600,
+          992700
+        ]
+      ],
+      "publishedRowTotals": [
+        5576100,
+        1313000,
+        2231400,
+        2512000,
+        1230900,
+        1106000
+      ],
+      "publishedColumnTotals": [
+        5578000,
+        1311500,
+        2235300,
+        2506200,
+        1231800,
+        1106600
+      ],
+      "publishedGrandTotal": 13969400
+    },
+    "am": {
+      "values": [
+        [
+          982700,
+          10600,
+          67200,
+          52000,
+          6000,
+          1800
+        ],
+        [
+          41000,
+          232600,
+          14900,
+          2400,
+          300,
+          300
+        ],
+        [
+          95100,
+          7000,
+          401300,
+          18700,
+          2300,
+          600
+        ],
+        [
+          76000,
+          1400,
+          20800,
+          476100,
+          21500,
+          3200
+        ],
+        [
+          16900,
+          400,
+          3900,
+          30800,
+          203700,
+          12000
+        ],
+        [
+          5800,
+          200,
+          1000,
+          6600,
+          22600,
+          195700
+        ]
+      ],
+      "publishedRowTotals": [
+        1120300,
+        291600,
+        525100,
+        599000,
+        267700,
+        231900
+      ],
+      "publishedColumnTotals": [
+        1217600,
+        252300,
+        509200,
+        586600,
+        256500,
+        213500
+      ],
+      "publishedGrandTotal": 3035500
+    }
+  },
+  "source": {
+    "title": "2022 TTS regional origin–destination tables",
+    "url": "https://dmg.utoronto.ca/wp-content/uploads/2025/08/2022-TTS-OD-Matrices-v1.4.pdf",
+    "page": 53,
+    "sections": [
+      "3.1.1",
+      "3.1.2"
+    ],
+    "published": "January 2025",
+    "retrievedAt": "2026-09-13T13:40:11.706200+00:00",
+    "sha256": "4e630d933df3d59b1c52a217066ac2c8ed44a3bbb3e310e796db5593a60f73ae"
+  },
+  "scope": "Trips made by GTHA households, with both endpoints inside the GTHA. All modes and purposes; people age 5 and older. The 2022 survey collected travel in fall 2022 and spring 2023.",
+  "periods": {
+    "day": "24 hours",
+    "am": "Trips starting 06:00–08:59"
+  },
+  "limitations": [
+    "Expanded survey estimates, rounded to the nearest hundred.",
+    "Trips involving places or households outside the GTHA are excluded.",
+    "All of Toronto is a single region; no neighbourhood-to-neighbourhood flows are inferred.",
+    "These are trips, not distinct people or transit riders.",
+    "2022 uses a new age/walking-trip definition and is not directly comparable with earlier cycles.",
+    "No assignment to proposed routes or influence on corridor ranking is made."
+  ],
+  "attribution": "Transportation Tomorrow Survey, regional origin–destination report, January 2025; public aggregate tables hosted by the University of Toronto Data Management Group.",
+  "rights": "Numerical facts extracted from the public report. No household records or full report are redistributed. The Toronto open-data licence for other datasets is not claimed for TTS."
+}

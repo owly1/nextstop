@@ -12,6 +12,7 @@ From the `site/dist` folder, run `python3 -m http.server 4173 --bind 127.0.0.1`,
 
 - Actual TTC routes and stops from the August 27, 2026 GTFS snapshot, with rail, streetcar and optional daytime bus layers.
 - A density layer for 158 Toronto neighbourhoods and area-weighted density context around each corridor, using sourced 2021 census weighted 25% sample estimates. The coverage factor identifies missing areas outside Toronto.
+- A regional travel-pattern explorer using published 2022 TTS origin–destination tables. Explore inbound/outbound trips for six GTHA regions, morning or full day. All modes and purposes are included; these coarse flows do not change corridor ranking or imply transit ridership.
 - A reproducible rule-based comparison of bus priority, BRT, LRT and metro along six existing corridors.
 - Separate construction and annual operating allowances; no construction when no package fits.
 - Individual adjustments, mode comparison, explanatory case studies and sourced limitations.
@@ -33,6 +34,7 @@ The next substantive phase should ingest travel-flow evidence, build a combined 
 - `scripts/prepare-transit.py`: recreate the compact TTC snapshot from GTFS.
 - `scripts/test-engine.mjs`: model checks; run with `node scripts/test-engine.mjs` from this folder.
 - `scripts/prepare-demographics.py`: census/geography join and 800 m corridor intersections. Requires openpyxl, Shapely and pyproj. Use `scripts/export-corridors.mjs OUTPUT.json` first to export the exact current candidates. Pass source workbook, boundary GeoJSON, corridor JSON and output directory with the named CLI arguments. See `dist/data/demographics-provenance.json` for source URLs, hashes and the calculation method. Raw inputs are not required to serve the site.
+- `scripts/prepare-travel.py REPORT.pdf OUTPUT.json`: reproduces the two regional OD tables from printed page 53 of the public report, with source hash and methodology. Requires pdfplumber. `node scripts/test-travel.mjs` verifies direction, totals and all 24 views. The dataset contains public aggregate numerical facts, not household records; no open-data licence for TTS is claimed.
 
 The preprocessing script contains the raw GTFS input path. Update it and the provenance metadata deliberately when refreshing data; recheck all six endpoints and run the model checks. No raw GTFS archive is required to serve the website.
 
