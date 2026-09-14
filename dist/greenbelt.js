@@ -10,7 +10,7 @@ export function addGreenbeltLayer(map,data,showPopup){
  map.addLayer({id:'greenbelt-fill',type:'fill',source:'greenbelt',layout:{visibility:'none'},paint:{'fill-color':'#4e909b','fill-opacity':.13}});
  map.addLayer({id:'greenbelt-border',type:'line',source:'greenbelt',layout:{visibility:'none'},paint:{'line-color':'#357782','line-width':1.5}});
  map.on('click','greenbelt-fill',event=>{
-  if(map.queryRenderedFeatures(event.point,{layers:['proposal-line','concept-stops','ravine-fill','esa-fill'].filter(id=>map.getLayer(id))}).length)return;
+  if(map.queryRenderedFeatures(event.point,{layers:['proposal-line','concept-stops','ravine-fill','esa-fill','park-nrcan-fill','park-cpcad-fill'].filter(id=>map.getLayer(id))}).length)return;
   const content=document.createElement('div');content.className='stop-popup';const title=document.createElement('strong');title.textContent='Greenbelt outer boundary';const p=document.createElement('p');p.textContent='December 2023 snapshot. Different designations have different policies. Verify current boundaries, ownership and approvals; this outline is not a construction decision.';content.append(title,p);showPopup(event.lngLat,content);
  });
 }
