@@ -1,5 +1,9 @@
 # Nextstop — Toronto Lab
 
+## Flood review guide
+
+Connection details include `dist/flood.js`: review questions for the applied bus/BRT/LRT/metro option, links to TRCA's official river-flood viewer and companion polygon/line sources, and a historical September 19, 2019 TTC flood-management case (report pages 3–6). Questions are Nextstop interpretations, not agency recommendations for a corridor. No flood geometry is bundled, and no overlap, depth, probability or mitigation cost is calculated. Snapshot and GeoJSON exports preserve explicit `not_assessed` states and null measurements. Source geometry ingestion, coverage checks and reuse review remain unfinished. No scores or costs change.
+
 A small transit-imagination website. Generate upgrades from six Toronto bus corridors, adjust each connection's mode, departure interval and stop spacing, compare alternatives, and export a GeoJSON proposal. There is no network-drawing tool.
 
 ## Open it locally
