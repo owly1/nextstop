@@ -15,7 +15,7 @@ assert.notDeepEqual(floodContext('lrt').reviewQuestions,floodContext('bus').revi
 const original=floodContext('metro');original.reviewQuestions.pop();assert.equal(floodContext('metro').reviewQuestions.length,2);
 const app=readFileSync('dist/app.js','utf8');
 assert(app.includes('floodReview:floodContext(p.mode)'));
-assert(app.includes('parksDetail(c)+floodDetail(p.mode)'));
+assert(app.includes("['flood','Flood resilience','Not assessed',floodDetail(p.mode)]"));
 const html=readFileSync('dist/index.html','utf8');
 for(const m of html.matchAll(/(?:src|href)="([^"#]+)"/g)){
  const path=m[1].split('?')[0];if(!path.includes(':'))assert(existsSync('dist/'+path),path);

@@ -19,3 +19,7 @@ On small screens, the summary and notes follow the map instead of covering it. E
 ## Verification
 
 Local headless Chrome checks cover desktop light/dark, mobile 390×844, Nature and Density overlays, connection details, mode adjustment, preference persistence and automatic system-theme changes. Captured screens reviewed directly. No page errors or horizontal page overflow observed in these checks. Theme switching preserved the rendered proposal selection; applying an adjustment correctly closed the detail dialog. Further data work remains paused until the user approves the UI direction.
+
+## Connection inspector refinement
+
+Overview, Evidence and Stops tabs now separate service adjustments from research and stop locations. Native expandable evidence folders expose coverage gaps without a long wall of panels. Tab semantics support ArrowLeft/ArrowRight/Home/End; the title and navigation stay visible while the content scrolls. Browser QA on desktop light and mobile dark passed tabs, terrain controls, applied-mode changes, and Rouge map button state. Evidence is tied to the applied proposal until changes are confirmed. No planning model changes.

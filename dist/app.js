@@ -1,11 +1,12 @@
-import {bindMapTheme} from './map-theme.js?v=nextstop-18';
-import {floodDetail,floodContext,FLOOD_SOURCES} from './flood.js?v=nextstop-18';
-import {MODES,PRIORITIES,DEFAULTS,SOURCES,buildCandidates,generate,evaluate,totals,validSettings,cleanStopName} from './engine.js?v=nextstop-18';
-import {initializeTravel} from './travel.js?v=nextstop-18';
-import {environmentDetail,addEnvironmentLayers,ENVIRONMENT_SOURCES} from './environment.js?v=nextstop-18';
-import {terrainDetail,bindTerrain,terrainSummary,TERRAIN_SOURCE,profileGeometry} from './terrain.js?v=nextstop-18';
-import {greenbeltDetail,addGreenbeltLayer,GREENBELT_SOURCE} from './greenbelt.js?v=nextstop-18';
-import {parksDetail,addParkLayers,validParkData,PARK_SOURCES} from './parks.js?v=nextstop-18';
+import {inspectorMarkup,bindInspector} from './inspector.js?v=nextstop-19';
+import {bindMapTheme} from './map-theme.js?v=nextstop-19';
+import {floodDetail,floodContext,FLOOD_SOURCES} from './flood.js?v=nextstop-19';
+import {MODES,PRIORITIES,DEFAULTS,SOURCES,buildCandidates,generate,evaluate,totals,validSettings,cleanStopName} from './engine.js?v=nextstop-19';
+import {initializeTravel} from './travel.js?v=nextstop-19';
+import {environmentDetail,addEnvironmentLayers,ENVIRONMENT_SOURCES} from './environment.js?v=nextstop-19';
+import {terrainDetail,bindTerrain,terrainSummary,TERRAIN_SOURCE,profileGeometry} from './terrain.js?v=nextstop-19';
+import {greenbeltDetail,addGreenbeltLayer,GREENBELT_SOURCE} from './greenbelt.js?v=nextstop-19';
+import {parksDetail,addParkLayers,validParkData,PARK_SOURCES} from './parks.js?v=nextstop-19';
 const $=id=>document.getElementById(id);
 const state={settings:{...DEFAULTS},draft:{...DEFAULTS},candidates:[],proposals:[],selected:null,network:null,stops:null,density:null,environment:null,greenbelt:null,parks:null,terrain:false,ready:false,layers:{rail:true,buses:false,proposals:true,density:false,nature:false}};
 let map,mapReady=false,popup,toastTimer;
@@ -84,10 +85,21 @@ return '<div class="density-evidence"><span class="eyebrow">2021 CENSUS · NEIGH
 }
 function openDetail(){
 const p=selected();if(!p)return;const c=candidate(p.id);
-$('detail-content').innerHTML='<div class="dialog-top"><span class="eyebrow" style="color:'+c.color+'">'+c.area+' · CONNECTION '+(state.proposals.indexOf(p)+1)+'</span><button class="close-dialog" aria-label="Close connection details">×</button></div><h2 id="detail-title">'+c.corridor+'</h2><p>'+c.summary+'</p><div class="detail-stats"><div><small>Concept length</small><strong>'+p.km.toFixed(1)+' km</strong></div><div><small>Construction range</small><strong>'+range(p.capital)+'</strong></div></div><div class="detail-controls"><label for="detail-mode">Transit mode</label><select id="detail-mode">'+Object.entries(MODES).map(([id,m])=>'<option value="'+id+'" '+(id===p.mode?'selected':'')+'>'+m.name+'</option>').join('')+'</select><label for="detail-frequency">Departures</label><select id="detail-frequency">'+Array.from({length:13},(_,i)=>i+3).map(n=>'<option value="'+n+'" '+(n===p.headway?'selected':'')+'>Every '+n+' minutes</option>').join('')+'</select><label for="detail-spacing">Stops</label><select id="detail-spacing">'+[['local','More local stops'],['balanced','Balanced spacing'],['express','Fewer stops, longer walks']].map(([id,name])=>'<option value="'+id+'" '+(id===p.spacing?'selected':'')+'>'+name+'</option>').join('')+'</select></div><button class="generate-button" id="apply-adjustment">Apply to this connection <span aria-hidden="true">→</span></button>'+densityDetail(c)+terrainDetail(c,cleanStopName(c.stops[0].name),cleanStopName(c.stops.at(-1).name))+environmentDetail(c,p.mode)+greenbeltDetail(c)+parksDetail(c)+floodDetail(p.mode)+'<h3>Why explore it?</h3><p>'+c.why+'</p><div class="case-card"><span class="eyebrow">A LESSON FROM '+c.case.toUpperCase()+'</span><p>'+c.lesson+'</p>'+sourceLink(c.case)+'</div><h3>What still needs an answer</h3><p>'+c.caution+'</p><div class="review-chips">'+c.review.map(x=>'<span>'+x+'</span>').join('')+'</div><h3>Concept stops <span class="small-badge">'+p.stops.length+'</span></h3><p class="field-help">Selected from existing bus stop locations. These are not approved station sites.</p><ol class="stop-list" style="--route-color:'+c.color+'">'+p.stops.map(s=>'<li>'+esc(cleanStopName(s.name))+'</li>').join('')+'</ol><p class="field-help">'+c.confidence+'. '+sourceLink('ttc')+'</p>';
+const stats='<div class="detail-stats"><div><small>Concept length</small><strong>'+p.km.toFixed(1)+' km</strong></div><div><small>Illustrative construction</small><strong>'+range(p.capital)+'</strong></div></div>';
+const controls='<div class="detail-controls"><label for="detail-mode">Transit mode</label><select id="detail-mode">'+Object.entries(MODES).map(([id,m])=>'<option value="'+id+'" '+(id===p.mode?'selected':'')+'>'+m.name+'</option>').join('')+'</select><label for="detail-frequency">Departures</label><select id="detail-frequency">'+Array.from({length:13},(_,i)=>i+3).map(n=>'<option value="'+n+'" '+(n===p.headway?'selected':'')+'>Every '+n+' minutes</option>').join('')+'</select><label for="detail-spacing">Stops</label><select id="detail-spacing">'+[['local','More local stops'],['balanced','Balanced spacing'],['express','Fewer stops, longer walks']].map(([id,name])=>'<option value="'+id+'" '+(id===p.spacing?'selected':'')+'>'+name+'</option>').join('')+'</select></div>';
+const evidence=[
+ ['population','Population & density',c.demographics?'2021 context':'Unavailable',densityDetail(c)],
+ ['terrain','Terrain profile',c.terrain?'Ground heights':'Unavailable',terrainDetail(c,cleanStopName(c.stops[0].name),cleanStopName(c.stops.at(-1).name))],
+ ['environment','Ravines & natural areas',c.environment?'Initial screening':'Unavailable',environmentDetail(c,p.mode)],
+ ['greenbelt','Greenbelt',c.greenbelt?'Boundary context':'Unavailable',greenbeltDetail(c)],
+ ['parks','Rouge park','Coverage unresolved',parksDetail(c)],
+ ['flood','Flood resilience','Not assessed',floodDetail(p.mode)]
+];
+$('detail-content').innerHTML=inspectorMarkup({c,p:{...p,stops:p.stops.map(s=>({...s,name:cleanStopName(s.name)}))},index:state.proposals.indexOf(p)+1,stats,controls,caseLink:sourceLink(c.case),sourceLink:sourceLink('ttc'),evidence,firstStop:cleanStopName(p.stops[0].name),lastStop:cleanStopName(p.stops.at(-1).name)});
+bindInspector($('detail-content'));
 $('detail-dialog').showModal();bindTerrain(c.terrain);
-$('show-rouge')?.addEventListener('click',()=>{if(!mapReady){toast('The map is still loading. Please try again.');return;}state.layers.nature=true;state.layers.density=false;$('toggle-nature').checked=true;$('toggle-density').checked=false;$('detail-dialog').close();updateMap();fitCoordinates(state.parks.mapBounds,40);$('map').scrollIntoView({behavior:'smooth',block:'start'});});
-$('detail-mode').addEventListener('change',()=>{$('detail-content').querySelector('.environment-evidence').outerHTML=environmentDetail(c,$('detail-mode').value);});
+$('show-rouge')?.addEventListener('click',()=>{if(!mapReady){toast('The map is still loading. Please try again.');return;}state.layers.nature=true;state.layers.density=false;$('toggle-nature').setAttribute('aria-pressed','true');$('toggle-nature').classList.add('active');$('toggle-density').setAttribute('aria-pressed','false');$('toggle-density').classList.remove('active');$('detail-dialog').close();updateMap();fitCoordinates(state.parks.mapBounds,40);$('map').scrollIntoView({behavior:'smooth',block:'start'});});
+
 $('apply-adjustment').addEventListener('click',()=>{const updated=evaluate(c,$('detail-mode').value,{...state.settings,frequency:Number($('detail-frequency').value),spacing:$('detail-spacing').value});state.proposals=state.proposals.map(old=>old.id===c.id?updated:old);render();$('detail-dialog').close();toast(c.corridor+' updated. Check the package against your allowances.');});
 }
 function openCompare(){
