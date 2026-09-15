@@ -1,10 +1,11 @@
-import {floodDetail,floodContext,FLOOD_SOURCES} from './flood.js?v=nextstop-17';
-import {MODES,PRIORITIES,DEFAULTS,SOURCES,buildCandidates,generate,evaluate,totals,validSettings,cleanStopName} from './engine.js?v=nextstop-17';
-import {initializeTravel} from './travel.js?v=nextstop-17';
-import {environmentDetail,addEnvironmentLayers,ENVIRONMENT_SOURCES} from './environment.js?v=nextstop-17';
-import {terrainDetail,bindTerrain,terrainSummary,TERRAIN_SOURCE,profileGeometry} from './terrain.js?v=nextstop-17';
-import {greenbeltDetail,addGreenbeltLayer,GREENBELT_SOURCE} from './greenbelt.js?v=nextstop-17';
-import {parksDetail,addParkLayers,validParkData,PARK_SOURCES} from './parks.js?v=nextstop-17';
+import {bindMapTheme} from './map-theme.js?v=nextstop-18';
+import {floodDetail,floodContext,FLOOD_SOURCES} from './flood.js?v=nextstop-18';
+import {MODES,PRIORITIES,DEFAULTS,SOURCES,buildCandidates,generate,evaluate,totals,validSettings,cleanStopName} from './engine.js?v=nextstop-18';
+import {initializeTravel} from './travel.js?v=nextstop-18';
+import {environmentDetail,addEnvironmentLayers,ENVIRONMENT_SOURCES} from './environment.js?v=nextstop-18';
+import {terrainDetail,bindTerrain,terrainSummary,TERRAIN_SOURCE,profileGeometry} from './terrain.js?v=nextstop-18';
+import {greenbeltDetail,addGreenbeltLayer,GREENBELT_SOURCE} from './greenbelt.js?v=nextstop-18';
+import {parksDetail,addParkLayers,validParkData,PARK_SOURCES} from './parks.js?v=nextstop-18';
 const $=id=>document.getElementById(id);
 const state={settings:{...DEFAULTS},draft:{...DEFAULTS},candidates:[],proposals:[],selected:null,network:null,stops:null,density:null,environment:null,greenbelt:null,parks:null,terrain:false,ready:false,layers:{rail:true,buses:false,proposals:true,density:false,nature:false}};
 let map,mapReady=false,popup,toastTimer;
@@ -27,10 +28,11 @@ const cautious=state.settings.risk==='cautious',tested=sum.capital[cautious?1:0]
 $('budget-status').classList.toggle('over',over);
 $('budget-status').innerHTML=state.proposals.length?'<div><span>'+(over?'Outside your allowances':cautious?'Upper estimate fits your budget':'Fits at the lower estimate')+'</span><strong>'+Math.round(tested/Math.max(.001,state.settings.budget)*100)+'%</strong></div><div class="budget-track"><i style="width:'+Math.min(100,tested/Math.max(.001,state.settings.budget)*100)+'%"></i></div><small>'+(cautious?'Conservative construction allowance':'Higher costs could exceed your budget')+' · Operations '+sum.annual.toFixed(0)+' / '+state.settings.operations+'m</small>':'';
 $('total-cost').textContent=range(sum.capital);$('total-km').textContent=sum.km.toFixed(1)+' km';$('total-annual').textContent='C$'+sum.annual.toFixed(0)+'m';$('total-stops').textContent=state.proposals.length+' corridors · '+sum.stops+' concept stops';
-const titles={balanced:'A little more connected.',access:'More of the city, within reach.',speed:'Less time getting across town.',value:'Small moves. New possibilities.'};
-$('scenario-title').textContent=state.proposals.length?titles[state.settings.priority]:'Better can start with the basics.';
+const titles={balanced:'A balanced network.',access:'A wider reach.',speed:'Across town, faster.',value:'More from less.'};
+$('scenario-title').textContent=state.proposals.length?titles[state.settings.priority]:'Build on what’s here.';
 const headways=[...new Set(state.proposals.map(p=>p.headway))];
 $('scenario-subtitle').textContent=state.proposals.length?PRIORITIES[state.settings.priority]+' · '+(headways.length===1?'Every '+headways[0]+' minutes':'Individual service settings'):'No new infrastructure within these allowances.';
+$('connection-index').textContent=p?String(state.proposals.indexOf(p)+1).padStart(2,'0'):'—';
 if(p){const c=candidate(p.id);$('insight-title').textContent=c.summary;$('insight-summary').textContent=c.why;$('insight-card').style.setProperty('--insight-color',c.color);}else{$('insight-title').textContent='A useful result can be no new line.';$('insight-summary').textContent='Existing services still need maintenance and funding. A bigger map is not always the better next step.';}
 for(const id of ['detail-button','compare-button'])$(id).disabled=!p;$('export-button').disabled=!state.ready;updateMap();
 }
@@ -38,7 +40,7 @@ function mapSources(){
 return {lines:{type:'FeatureCollection',features:state.proposals.map((p,i)=>({type:'Feature',properties:{id:p.id,color:candidate(p.id).color,selected:p.id===state.selected?1:0,label:String(i+1).padStart(2,'0')+'  '+candidate(p.id).corridor,mode:MODES[p.mode].short},geometry:{type:'LineString',coordinates:candidate(p.id).coordinates}}))},points:{type:'FeatureCollection',features:state.proposals.flatMap(p=>p.stops.map((s,i)=>({type:'Feature',properties:{id:p.id,color:candidate(p.id).color,name:cleanStopName(s.name),selected:p.id===state.selected?1:0,endpoint:i===0||i===p.stops.length-1},geometry:{type:'Point',coordinates:s.coordinates}})))}};
 }
 function updateMap(){if(!mapReady)return;const {lines,points}=mapSources();map.getSource('proposals').setData(lines);map.getSource('concept-stops').setData(points);for(const id of ['proposal-glow','proposal-line','proposal-label','concept-stops','concept-stop-label'])map.setLayoutProperty(id,'visibility',state.layers.proposals?'visible':'none');map.setLayoutProperty('existing-rail','visibility',state.layers.rail?'visible':'none');map.setLayoutProperty('existing-streetcars','visibility',state.layers.rail?'visible':'none');map.setLayoutProperty('existing-buses','visibility',state.layers.buses?'visible':'none');if(map.getLayer('density-fill'))for(const id of ['density-fill','density-border'])map.setLayoutProperty(id,'visibility',state.layers.density?'visible':'none');$('density-key').hidden=!state.layers.density;if(map.getLayer('ravine-fill'))for(const id of ['ravine-fill','ravine-border','esa-fill','esa-border','ravine-review-border'])map.setLayoutProperty(id,'visibility',state.layers.nature?'visible':'none');if(map.getLayer('greenbelt-fill'))for(const id of ['greenbelt-fill','greenbelt-border'])map.setLayoutProperty(id,'visibility',state.layers.nature?'visible':'none');for(const id of ['park-nrcan-fill','park-nrcan-border','park-cpcad-fill','park-cpcad-border'])if(map.getLayer(id))map.setLayoutProperty(id,'visibility',state.layers.nature?'visible':'none');$('nature-key').hidden=!state.layers.nature;document.querySelector('.map-workspace').classList.toggle('nature-active',state.layers.nature);}
-function fitCoordinates(coords,pad=45){if(!mapReady||!coords.length)return;const bounds=coords.reduce((b,c)=>b.extend(c),new maplibregl.LngLatBounds(coords[0],coords[0]));const box=$('map').getBoundingClientRect(),heading=document.querySelector('.map-heading').getBoundingClientRect(),overlay=document.querySelector('.map-bottom').getBoundingClientRect();map.fitBounds(bounds,{padding:{top:Math.ceil(Math.min(heading.bottom-box.top+16,box.height*.4)),bottom:Math.ceil(Math.min(box.bottom-overlay.top+12,box.height*.58)),left:pad,right:pad},maxZoom:12,duration:window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:650});}
+function fitCoordinates(coords,pad=45){if(!mapReady||!coords.length)return;const bounds=coords.reduce((b,c)=>b.extend(c),new maplibregl.LngLatBounds(coords[0],coords[0]));const box=$('map').getBoundingClientRect(),heading=document.querySelector('.map-heading').getBoundingClientRect(),toolbar=document.querySelector('.map-toolbar').getBoundingClientRect(),overlay=document.querySelector('.map-bottom').getBoundingClientRect();map.fitBounds(bounds,{padding:{top:Math.ceil(Math.min(Math.max(heading.bottom,toolbar.bottom)-box.top+16,box.height*.6)),bottom:Math.ceil(Math.min(box.bottom-overlay.top+12,box.height*.58)),left:pad,right:pad},maxZoom:12,duration:window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:650});}
 function fitMap(){if(!mapReady)return;const coords=state.proposals.flatMap(p=>candidate(p.id).coordinates);if(coords.length)fitCoordinates(coords);else map.fitBounds([[-79.65,43.61],[-79.12,43.85]],{padding:50,duration:500});}
 function initializeMap(){
 try{
@@ -46,6 +48,7 @@ if(!window.maplibregl)throw new Error('Map library did not load');
 map=new maplibregl.Map({container:'map',style:'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',center:[-79.39,43.72],zoom:10.3,minZoom:8,maxZoom:16,attributionControl:{compact:true,customAttribution:'Toronto, Ontario & Canada open data'},renderWorldCopies:false,maxBounds:[[-83,41],[-76,46]]});
 map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
 map.on('load',()=>{
+const applyMapTheme=bindMapTheme(map);
 $('map-unavailable').hidden=true;
 if(state.density){
 map.addSource('density',{type:'geojson',data:state.density});
@@ -69,7 +72,7 @@ map.addLayer({id:'concept-stop-label',type:'symbol',source:'concept-stops',minzo
 for(const id of ['proposal-line','concept-stops']){map.on('mouseenter',id,()=>map.getCanvas().style.cursor='pointer');map.on('mouseleave',id,()=>map.getCanvas().style.cursor='');}
 map.on('click','proposal-line',e=>selectRoute(e.features[0].properties.id,false));
 map.on('click','concept-stops',e=>{const f=e.features[0];selectRoute(f.properties.id,false);popup?.remove();const content=document.createElement('div');content.className='stop-popup';const strong=document.createElement('strong');strong.textContent=f.properties.name;const p=document.createElement('p');p.textContent='Concept stop · Placement requires design review';content.append(strong,p);popup=new maplibregl.Popup({offset:12}).setLngLat(f.geometry.coordinates).setDOMContent(content).addTo(map);});
-mapReady=true;updateMap();fitMap();
+mapReady=true;applyMapTheme();updateMap();fitMap();
 });
 map.on('error',event=>{if(!mapReady&&event.error?.message?.includes('Failed'))$('map-unavailable').hidden=false;});
 }catch(error){$('map-unavailable').hidden=false;console.warn('Background map unavailable',error.message);}

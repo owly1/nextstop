@@ -1,5 +1,7 @@
 # Nextstop — Toronto Lab
 
+The atlas interface uses `dist/atlas.css`, early-loading `dist/theme.js` and `dist/map-theme.js`. Appearance supports Light, Dark and System; only this local preference persists. Map recolouring preserves the current layers and proposal. See `UI_DESIGN_NOTES.md` for research, rationale and validation. New planning-data work awaits the user's UI review.
+
 ## Flood review guide
 
 Connection details include `dist/flood.js`: review questions for the applied bus/BRT/LRT/metro option, links to TRCA's official river-flood viewer and companion polygon/line sources, and a historical September 19, 2019 TTC flood-management case (report pages 3–6). Questions are Nextstop interpretations, not agency recommendations for a corridor. No flood geometry is bundled, and no overlap, depth, probability or mitigation cost is calculated. Snapshot and GeoJSON exports preserve explicit `not_assessed` states and null measurements. Source geometry ingestion, coverage checks and reuse review remain unfinished. No scores or costs change.
