@@ -1,10 +1,12 @@
 # Nextstop — Toronto Lab
 
-The atlas interface uses `dist/atlas.css`, early-loading `dist/theme.js` and `dist/map-theme.js`. Appearance supports Light, Dark and System; only this local preference persists. Map recolouring preserves the current layers and proposal. See `UI_DESIGN_NOTES.md` for research, rationale and validation. New planning-data work awaits the user's UI review.
+The atlas interface uses `dist/atlas.css`, early-loading `dist/theme.js` and `dist/map-theme.js`. Appearance supports Light, Dark and System; only this local preference persists. Map recolouring preserves the current layers and proposal. See `UI_DESIGN_NOTES.md` for research, rationale and validation. The user authorized resumed planning-data work after the inspector refinement.
 
-## Flood review guide
+## TRCA river-flood screening
 
-Connection details include `dist/flood.js`: review questions for the applied bus/BRT/LRT/metro option, links to TRCA's official river-flood viewer and companion polygon/line sources, and a historical September 19, 2019 TTC flood-management case (report pages 3–6). Questions are Nextstop interpretations, not agency recommendations for a corridor. No flood geometry is bundled, and no overlap, depth, probability or mitigation cost is calculated. Snapshot and GeoJSON exports preserve explicit `not_assessed` states and null measurements. Source geometry ingestion, coverage checks and reuse review remain unfinished. No scores or costs change.
+A separate Flood map layer and the inspector's Flood resilience topic show source-class polygon overlaps, companion line records and coverage limitations. Preparation verifies all 1,301 polygon and 5,479 line IDs, excludes 81 missing/invalid geometries, and measures full valid polygon unions in EPSG:2952. Four line records have no usable geometry and cannot be located; all pilot corridors retain a completeness warning. Display copies are simplified by 5 m. No depth, annual probability, local-drainage flood model or mitigation cost is inferred; no ranks or costs change.
+
+TRCA's portal links its Open Data Licence v1.0. Preserve the required credit in map attribution, details and exports. Sources, record counts and SHA256 hashes are in dist/data/flood-context.json. Download pages use f=geojson, outSR=4326, orderByFields=OBJECTID ASC, resultRecordCount=2000, offsets 0 for Polygon layer 1 and 0/2000/4000 for Line layer 0. Compare all IDs to returnIdsOnly=true queries. Raw files are /private/tmp/nextstop-flood-{polygon,line}-*.geojson and *-ids.json. Rebuild with scripts/prepare-flood.py --raw /private/tmp --corridors /private/tmp/nextstop-corridors.json --output dist/data/flood-context.json using the geospatial dependencies. The output is a retrieval snapshot, not a common study date or a guarantee of complete coverage.
 
 A small transit-imagination website. Generate upgrades from six Toronto bus corridors, adjust each connection's mode, departure interval and stop spacing, compare alternatives, and export a GeoJSON proposal. There is no network-drawing tool.
 
@@ -30,7 +32,7 @@ From the `site/dist` folder, run `python3 -m http.server 4173 --bind 127.0.0.1`,
 
 This version is not a trained AI, a demand forecast or an engineering assessment. Neighbourhood density is historical context; it does not establish current population, walking access or ridership. The app does not yet assign corridor-level origin–destination demand or assess geology, regional GDP or actual public funding. Terrain profiles provide sampled historical ground context, not surveyed elevations or engineering grades. Environmental screening covers only two Toronto datasets, not all constraints. Costs, speeds, vehicle capacities and ranking weights are illustrative design assumptions. The baseline excludes GO and regional bus networks and does not represent committed future projects. Geometry follows representative TTC bus paths, including road turns unsuitable for a literal railway alignment.
 
-The next substantive phase should extend environmental coverage (Greenbelt, national parks and flood hazards), build a combined regional baseline, and evaluate finer trip patterns and walk catchments. Keep these separate from speculative scenario assumptions. GDP must never be treated as available government funds. An LLM can explain retrieved evidence later; it should not invent the numerical analysis.
+The next substantive phase should build a combined current and committed regional transit baseline, then evaluate finer trip patterns and walk catchments. Existing environmental screens retain their documented coverage gaps. Keep these separate from speculative scenario assumptions. GDP must never be treated as available government funds. An LLM can explain retrieved evidence later; it should not invent the numerical analysis.
 
 ## Files to change
 
@@ -74,7 +76,7 @@ Run `node scripts/test-terrain.mjs` for sampling counts, ranges, chart coordinat
 
 ## Greenbelt screening
 
-The Nature view includes the Ontario Greenbelt outer boundary from the official `GBOUTBND.zip` distribution, dated December 14, 2023, with effective-date field December 6, 2023. The layer covers all Greenbelt areas, including Urban River Valleys; it does not identify site-specific designation or ownership. Ontario’s Urban River Valley policy source is linked in each connection’s Greenbelt panel. Treat overlap as a planning-review question, not permission or a blanket construction ban. National parks and flood hazards remain unscreened.
+The Nature view includes the Ontario Greenbelt outer boundary from the official `GBOUTBND.zip` distribution, dated December 14, 2023, with effective-date field December 6, 2023. The layer covers all Greenbelt areas, including Urban River Valleys; it does not identify site-specific designation or ownership. Ontario’s Urban River Valley policy source is linked in each connection’s Greenbelt panel. Treat overlap as a planning-review question, not permission or a blanket construction ban. Rouge source comparisons and TRCA river-flood screening are documented below and above; neither establishes complete hazard or park coverage.
 
 Reproduce with `python3 scripts/prepare-greenbelt.py --archive GBOUTBND.zip --corridors CANDIDATES.json --output dist/data/greenbelt.json`, using the existing Shapely/pyproj/pyshp dependencies. The source is NAD83 geographic (EPSG:4269), transformed to EPSG:2952 for full-geometry intersections and minimum distances. Only the display copy is simplified by 10 m. The source MultiPolygon is valid and required no repair. SHA256 hashes, source, effective date, methods and Open Government Licence – Ontario attribution are embedded in `greenbelt.json`. No change to ranking or budgets.
 
